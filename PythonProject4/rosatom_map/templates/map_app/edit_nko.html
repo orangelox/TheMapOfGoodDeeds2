@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать НКО - Карта добрых дел</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+    body {
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+    .header {
+        background: linear-gradient(135deg, #0055a5, #003366);
+        color: white;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .form-container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+    }
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        font-size: 16px;
+        background: #fff;
+        color: #2c3e50;
+        transition: border-color 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: #0055a5;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 85, 165, 0.1);
+    }
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    button {
+        background: #0055a5;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    button:hover {
+        background: #003366;
+    }
+    .nav {
+        margin-bottom: 20px;
+    }
+    .nav a {
+        color: #0055a5;
+        text-decoration: none;
+        margin-right: 20px;
+        font-weight: 500;
+    }
+    .nav a:hover {
+        text-decoration: underline;
+    }
+    .error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+    .success {
+        color: #28a745;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+    small {
+        color: #6c757d;
+        font-size: 12px;
+        display: block;
+        margin-top: 5px;
+    }
+    .messages {
+        margin-bottom: 20px;
+    }
+    .message {
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>💙 Редактировать НКО</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="{% url 'map' %}">← Назад к карте</a>
+            <a href="{% url 'profile' %}">Мой профиль</a>
+        </div>
+
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="name">Название НКО *</label>
+                    <input type="text" id="name" name="name" value="{{ nko.name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Категория деятельности *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Выберите категорию</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category.id == nko.category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание деятельности *</label>
+                    <textarea id="description" name="description" required>{{ nko.description }}</textarea>
+                    <small>Опишите чем занимается организация и чем могут помочь волонтеры (2-3 предложения)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">Город *</label>
+                    <select id="city" name="city" required>
+                        <option value="">Выберите город</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}" {% if city.id == nko.city.id %}selected{% endif %}>
+                                {{ city.name }}, {{ city.region }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Адрес</label>
+                    <textarea id="address" name="address">{{ nko.address }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="text" id="phone" name="phone" value="{{ nko.phone }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Веб-сайт</label>
+                    <input type="url" id="website" name="website" value="{{ nko.website }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="vk_link">Ссылка ВКонтакте</label>
+                    <input type="url" id="vk_link" name="vk_link" value="{{ nko.vk_link }}">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="latitude">Широта</label>
+                        <input type="number" step="any" id="latitude" name="latitude" value="{{ nko.latitude }}">
+                        <small>Оставьте пустым для автоматического определения</small>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="longitude">Долгота</label>
+                        <input type="number" step="any" id="longitude" name="longitude" value="{{ nko.longitude }}">
+                        <small>Оставьте пустым для автоматического определения</small>
+                    </div>
+                </div>
+
+                <button type="submit">Обновить информацию</button>
+            </form>
+
+            <div style="margin-top: 30px; padding: 20px; background: #f0f8ff; border-radius: 5px;">
+                <h3>💡 Важно!</h3>
+                <p>После обновления информации ваша НКО будет отправлена на повторную модерацию.</p>
+                <p>После одобрения модератором изменения появятся на карте.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

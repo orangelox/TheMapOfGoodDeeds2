@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта добрых дел</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=34caeae2-9c4e-4ef1-ac1d-24bdd4ec75a2&lang=ru_RU" type="text/javascript"></script>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+
+    body {
+        background-color: #f8f9fa;
+        color: #2c3e50;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #0055a5 0%, #003366 100%);
+        color: white;
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-image {
+        height: 50px;
+        width: auto;
+    }
+
+    .logo-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logo h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+    }
+
+    .logo .subtitle {
+        font-size: 14px;
+        color: #ffcc00;
+        margin-top: 2px;
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #ffcc00;
+        color: #003366;
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: white;
+        border: 1px solid white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .main-content {
+        display: flex;
+        min-height: calc(100vh - 120px);
+    }
+
+    .sidebar {
+        width: 400px;
+        background-color: white;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        border-right: 1px solid #e9ecef;
+    }
+
+    .map-container {
+        flex: 1;
+        position: relative;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .search-box {
+        margin-bottom: 20px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #fff;
+        color: #2c3e50;
+    }
+
+    .search-box input::placeholder {
+        color: #6c757d;
+    }
+
+    .filters {
+        margin-bottom: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-group h3 {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #0055a5;
+        font-weight: 600;
+    }
+
+    .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .filter-option {
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        color: #495057;
+    }
+
+    .filter-option.active {
+        background-color: #0055a5;
+        color: white;
+        border-color: #0055a5;
+    }
+
+    .nko-list {
+        margin-top: 20px;
+    }
+
+    .nko-list h3 {
+        margin-bottom: 15px;
+        font-size: 16px;
+        color: #0055a5;
+        font-weight: 600;
+    }
+
+    .nko-list-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+    }
+
+    .nko-list-item {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    .nko-list-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    .nko-list-item.active {
+        background-color: #e3f2fd;
+        border-left: 3px solid #0055a5;
+    }
+
+    .nko-list-item:last-child {
+        border-bottom: none;
+    }
+
+    .nko-item-name {
+        font-weight: 600;
+        color: #0055a5;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .nko-item-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .nko-item-category {
+        background-color: #e3f2fd;
+        color: #0055a5;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .nko-item-city {
+        color: #495057;
+    }
+
+    .sort-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .sort-btn {
+        padding: 6px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 15px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .sort-btn.active {
+        background-color: #0055a5;
+        color: white;
+        border-color: #0055a5;
+    }
+
+    .nko-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: none;
+        border: 1px solid #e9ecef;
+    }
+
+    .nko-card.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .nko-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .nko-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0055a5;
+        font-size: 20px;
+        border: 2px solid #e9ecef;
+    }
+
+    .nko-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0055a5;
+        margin-bottom: 5px;
+    }
+
+    .nko-category {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #e3f2fd;
+        color: #0055a5;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .nko-description {
+        margin-bottom: 15px;
+        line-height: 1.5;
+        color: #495057;
+        font-size: 14px;
+    }
+
+    .nko-contacts {
+        margin-bottom: 15px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        color: #495057;
+        font-size: 14px;
+    }
+
+    .contact-icon {
+        width: 20px;
+        margin-right: 10px;
+        text-align: center;
+        color: #0055a5;
+        font-weight: bold;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .social-link {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #0055a5;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        border: 1px solid #dee2e6;
+        font-weight: 500;
+    }
+
+    .social-link:hover {
+        background-color: #e3f2fd;
+        color: #003366;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            flex-direction: column;
+        }
+        .sidebar {
+            width: 100%;
+            max-height: 40vh;
+        }
+        .map-container {
+            height: 60vh;
+        }
+    }
+
+    .footer {
+        background-color: #003366;
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .footer-logo {
+        height: 30px;
+        margin-bottom: 10px;
+    }
+
+    .footer-text {
+        font-size: 14px;
+        color: #ffcc00;
+    }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="/static/images/rosatom_logo.png"
+                         alt="Росатом"
+                         class="logo-image">
+                    <div class="logo-text">
+                        <h1>Карта добрых дел</h1>
+                        <div class="subtitle">при поддержке Госкорпорации «Росатом»</div>
+                    </div>
+                </div>
+                <div class="auth-buttons">
+                    {% if user.is_authenticated %}
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            {% if user.nko_set.exists %}
+                                <a href="{% url 'edit_nko' user.nko_set.first.id %}" class="btn btn-secondary">Моя НКО</a>
+                            {% else %}
+                                <a href="{% url 'add_nko' %}" class="btn btn-secondary">Добавить НКО</a>
+                            {% endif %}
+                            <a href="{% url 'profile' %}" class="btn btn-secondary">Профиль</a>
+                            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Выйти</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; gap: 10px;">
+                            <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
+                            <a href="{% url 'register' %}" class="btn btn-primary">Регистрация</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск по названию НКО...">
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <h3>Категории</h3>
+                    <div class="filter-options" id="categoryFilters">
+                        <div class="filter-option active" data-category="all">Все</div>
+                        {% for category in categories %}
+                        <div class="filter-option" data-category="{{ category.id }}">{{ category.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="nko-list">
+                <h3>Список НКО</h3>
+                <div class="sort-controls">
+                    <button class="sort-btn active" data-sort="name">По названию</button>
+                    <button class="sort-btn" data-sort="city">По городу</button>
+                    <button class="sort-btn" data-sort="category">По категории</button>
+                </div>
+                <div class="nko-list-container" id="nkoListContainer">
+                </div>
+            </div>
+
+            <div class="nko-card" id="nkoCard">
+                <div class="nko-header">
+                    <div class="nko-logo">🏢</div>
+                    <div>
+                        <div class="nko-name" id="nkoName">Название НКО</div>
+                        <div class="nko-category" id="nkoCategory">Категория</div>
+                    </div>
+                </div>
+                <div class="nko-description" id="nkoDescription">
+                    Описание деятельности организации.
+                </div>
+                <div class="nko-contacts">
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div id="nkoAddress">Адрес</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div id="nkoPhone">Телефон</div>
+                    </div>
+                </div>
+                <div class="social-links" id="nkoSocialLinks">
+                </div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <img src="/static/images/rosatom_logo.png"
+                 alt="Росатом"
+                 class="footer-logo">
+            <div class="footer-text">Проект реализован при поддержке Госкорпорации «Росатом»</div>
+        </div>
+    </footer>
+
+    <script>
+        let map;
+        let allNkoData = [];
+        let currentSort = 'name';
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        ymaps.ready(function() {
+            map = new ymaps.Map('map', {
+                center: [{{ map_center_lat }}, {{ map_center_lon }}],
+                zoom: 5,
+                controls: ['zoomControl', 'fullscreenControl'],
+                minZoom: 3,
+                maxZoom: 12
+            });
+
+            map.setBounds([[41.0, 19.0], [82.0, 180.0]]);
+            map.controls.get('zoomControl').options.set({size: 'small'});
+
+            loadNkoData();
+            setupEventListeners();
+        });
+
+        function loadNkoData() {
+            fetch('/api/nkos/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка загрузки данных');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    allNkoData = data.nkos;
+                    updateDisplay();
+                })
+                .catch(error => {
+                    allNkoData = {{ nko_data_json|safe }};
+                    updateDisplay();
+                });
+        }
+
+        function getFilteredNKO() {
+            let filtered = allNkoData;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(nko => nko.category_id == currentCategory);
+            }
+
+            if (currentSearch) {
+                filtered = filtered.filter(nko =>
+                    nko.name.toLowerCase().includes(currentSearch) ||
+                    (nko.description && nko.description.toLowerCase().includes(currentSearch)) ||
+                    (nko.category && nko.category.toLowerCase().includes(currentSearch)) ||
+                    (nko.city && nko.city.toLowerCase().includes(currentSearch))
+                );
+            }
+
+            return filtered;
+        }
+
+        function updateDisplay() {
+            const filteredNKO = getFilteredNKO();
+            renderNKOOnMap(filteredNKO);
+            renderNKOList(filteredNKO);
+        }
+
+        function renderNKOOnMap(nkos) {
+            map.geoObjects.removeAll();
+
+            if (nkos.length === 0) {
+                return;
+            }
+
+            nkos.forEach(nko => {
+                if (!nko.latitude || !nko.longitude) {
+                    return;
+                }
+
+                const placemark = new ymaps.Placemark([nko.latitude, nko.longitude], {
+                    balloonContentHeader: `<strong>${nko.name}</strong>`,
+                    balloonContentBody: `
+                        <div style="max-width: 300px;">
+                            <p><strong>Категория:</strong> ${nko.category}</p>
+                            <p><strong>Описание:</strong> ${nko.description}</p>
+                            <p><strong>Адрес:</strong> ${nko.address || 'Не указан'}</p>
+                            <p><strong>Телефон:</strong> ${nko.phone || 'Не указан'}</p>
+                            ${nko.website ? `<p><strong>Сайт:</strong> <a href="${nko.website}" target="_blank">${nko.website}</a></p>` : ''}
+                            ${nko.vk_link ? `<p><strong>VK:</strong> <a href="${nko.vk_link}" target="_blank">${nko.vk_link}</a></p>` : ''}
+                        </div>
+                    `,
+                    hintContent: nko.name
+                }, {
+                    preset: 'islands#circleIcon',
+                    iconColor: nko.category_color || '#0055a5',
+                    balloonCloseButton: true,
+                    hideIconOnBalloonOpen: false
+                });
+
+                placemark.events.add('click', function(e) {
+                    e.preventDefault();
+                    showNkoCard(nko);
+                    highlightNKOInList(nko.id);
+                    map.panTo([nko.latitude, nko.longitude], { duration: 500 });
+                });
+
+                map.geoObjects.add(placemark);
+            });
+        }
+
+        function renderNKOList(nkos) {
+            const container = document.getElementById('nkoListContainer');
+            container.innerHTML = '';
+
+            if (nkos.length === 0) {
+                container.innerHTML = '<div class="nko-list-item" style="text-align: center; color: #6c757d;">НКО не найдены</div>';
+                return;
+            }
+
+            const sortedNkos = sortNKO(nkos, currentSort);
+
+            sortedNkos.forEach(nko => {
+                const item = document.createElement('div');
+                item.className = 'nko-list-item';
+                item.setAttribute('data-nko-id', nko.id);
+
+                item.innerHTML = `
+                    <div class="nko-item-name">${nko.name}</div>
+                    <div class="nko-item-details">
+                        <span class="nko-item-category">${nko.category}</span>
+                        <span class="nko-item-city">${nko.city}</span>
+                    </div>
+                `;
+
+                item.addEventListener('click', function() {
+                    showNkoCard(nko);
+                    highlightNKOInList(nko.id);
+                    map.panTo([nko.latitude, nko.longitude], { duration: 500 });
+                });
+
+                container.appendChild(item);
+            });
+        }
+
+        function sortNKO(nkos, sortBy) {
+            return [...nkos].sort((a, b) => {
+                switch(sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'city':
+                        return a.city.localeCompare(b.city);
+                    case 'category':
+                        return a.category.localeCompare(b.category);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        function highlightNKOInList(nkoId) {
+            document.querySelectorAll('.nko-list-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-nko-id') == nkoId) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        }
+
+        function showNkoCard(nko) {
+            const nkoCard = document.getElementById('nkoCard');
+            document.getElementById('nkoName').textContent = nko.name;
+            document.getElementById('nkoCategory').textContent = nko.category;
+            document.getElementById('nkoDescription').textContent = nko.description;
+            document.getElementById('nkoAddress').textContent = nko.address || 'Адрес не указан';
+            document.getElementById('nkoPhone').textContent = nko.phone || 'Телефон не указан';
+
+            const socialLinks = document.getElementById('nkoSocialLinks');
+            socialLinks.innerHTML = '';
+
+            if (nko.website) {
+                const websiteLink = document.createElement('a');
+                websiteLink.href = nko.website;
+                websiteLink.target = '_blank';
+                websiteLink.className = 'social-link';
+                websiteLink.textContent = '🌐 Сайт';
+                socialLinks.appendChild(websiteLink);
+            }
+
+            if (nko.vk_link) {
+                const vkLink = document.createElement('a');
+                vkLink.href = nko.vk_link;
+                vkLink.target = '_blank';
+                vkLink.className = 'social-link';
+                vkLink.textContent = '👥 ВКонтакте';
+                socialLinks.appendChild(vkLink);
+            }
+
+            nkoCard.classList.add('active');
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSort = this.getAttribute('data-sort');
+                    updateDisplay();
+                });
+            });
+
+            document.querySelectorAll('.filter-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-category');
+                    document.querySelectorAll('.filter-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    currentCategory = categoryId;
+                    updateDisplay();
+                });
+            });
+
+            document.getElementById('searchInput').addEventListener('input', function() {
+                currentSearch = this.value.toLowerCase();
+                updateDisplay();
+            });
+        }
+    </script>
+</body>
+</html>

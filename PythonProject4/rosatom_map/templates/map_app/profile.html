@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль - Карта добрых дел</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+        .header {
+            background: linear-gradient(135deg, #0055a5, #003366);
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            color: #0055a5;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .profile-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+        .profile-sidebar {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #0055a5;
+        }
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0055a5;
+            margin-bottom: 5px;
+        }
+        .profile-email {
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        .profile-stats {
+            margin-top: 20px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .profile-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0055a5;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 16px;
+            background: #fff;
+            color: #2c3e50;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #0055a5;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 85, 165, 0.1);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background: #0055a5;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #003366;
+        }
+        .nko-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0055a5;
+        }
+        .nko-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #0055a5;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #003366;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>💙 Мой профиль</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="{% url 'map' %}">← Назад к карте</a>
+            <a href="{% url 'add_nko' %}">Добавить НКО</a>
+        </div>
+
+        <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                {% if user.userprofile.avatar %}
+                    <img src="{{ user.userprofile.avatar.url }}" alt="Аватар" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar" style="background: #0055a5; color: white; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                        👤
+                    </div>
+                {% endif %}
+                <div class="profile-name">{{ user.username }}</div>
+                <div class="profile-email">{{ user.email }}</div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span>Дата регистрации:</span>
+                        <span>{{ user.date_joined|date:"d.m.Y" }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Моя НКО:</span>
+                        <span>{% if user_nko %}✅{% else %}❌{% endif %}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Статус НКО:</span>
+                        <span>
+                            {% if user_nko %}
+                                {% if user_nko.is_approved %}
+                                    <span style="color: #28a745;">Одобрена</span>
+                                {% else %}
+                                    <span style="color: #ffc107;">На модерации</span>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="section-title">Редактирование профиля</div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="id_phone">Телефон</label>
+                        {{ profile_form.phone }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_city">Город</label>
+                        {{ profile_form.city }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_bio">О себе</label>
+                        {{ profile_form.bio }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_avatar">Аватар</label>
+                        {{ profile_form.avatar }}
+                    </div>
+
+                    <button type="submit">Сохранить изменения</button>
+                </form>
+
+                {% if user_nko %}
+                <div style="margin-top: 40px;">
+                    <div class="section-title">Моя НКО</div>
+                    <div class="nko-card">
+                        <div class="nko-status {% if user_nko.is_approved %}status-approved{% else %}status-pending{% endif %}">
+                            {% if user_nko.is_approved %}Одобрена{% else %}На модерации{% endif %}
+                        </div>
+                        <h3>{{ user_nko.name }}</h3>
+                        <p><strong>Категория:</strong> {{ user_nko.category.name }}</p>
+                        <p><strong>Город:</strong> {{ user_nko.city.name }}, {{ user_nko.city.region }}</p>
+                        <p><strong>Описание:</strong> {{ user_nko.description }}</p>
+
+                        <div style="margin-top: 15px;">
+                            <a href="{% url 'edit_nko' user_nko.id %}" class="btn">Редактировать НКО</a>
+                            <a href="{% url 'map' %}" class="btn btn-secondary">Посмотреть на карте</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div style="margin-top: 40px; text-align: center; padding: 40px; background: #f0f8ff; border-radius: 8px;">
+                    <h3 style="color: #0055a5; margin-bottom: 15px;">У вас еще нет НКО</h3>
+                    <p style="color: #6c757d; margin-bottom: 20px;">Добавьте свою организацию на карту добрых дел</p>
+                    <a href="{% url 'add_nko' %}" class="btn" style="font-size: 16px; padding: 12px 30px;">Добавить НКО</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

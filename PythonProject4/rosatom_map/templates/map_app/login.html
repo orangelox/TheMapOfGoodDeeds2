@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Карта добрых дел</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+    body {
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #2c3e50;
+    }
+    .auth-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid #e9ecef;
+    }
+    .logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .logo h1 {
+        color: #0055a5;
+        margin-bottom: 10px;
+        font-size: 24px;
+    }
+    .logo p {
+        color: #6c757d;
+        font-size: 16px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        font-size: 16px;
+        background: #fff;
+        color: #2c3e50;
+        transition: border-color 0.3s;
+    }
+    input:focus {
+        border-color: #0055a5;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 85, 165, 0.1);
+    }
+    input::placeholder {
+        color: #6c757d;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #0055a5;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    button:hover {
+        background: #003366;
+    }
+    .links {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    .links a {
+        color: #0055a5;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .links a:hover {
+        text-decoration: underline;
+    }
+    .links p {
+        margin-bottom: 10px;
+        color: #6c757d;
+    }
+    .error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+    .success {
+        color: #28a745;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+</style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1>💙 Карта добрых дел</h1>
+            <p>Вход в систему</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit">Войти</button>
+        </form>
+
+        <div class="links">
+            <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+            <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+            <p><a href="{% url 'map' %}">Вернуться на карту</a></p>
+        </div>
+    </div>
+</body>
+</html>
